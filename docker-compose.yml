@@ -1,0 +1,38 @@
+# docker-compose file for local WordPress development.
+# NOT intended for production use.
+
+version:  "3.7"
+
+services:
+
+  web:
+    image: wordpress:5.2-php7.3-apache
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./web/wp-config.php:/var/www/html/wp-config.php
+    #networks:
+    #  wp-dev:
+    depends_on: 
+      - db
+
+  db:
+    image: mariadb:10.4-bionic
+    #restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=not-a-good-password
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpressuser
+      - MYSQL_PASSWORD=wordpresspass
+    volumes: 
+      - ./data:/var/lib/mysql
+      # Works around an issue with the mariadb image when its data directory is
+      # mounted to a location on a Win10 host system. Details at:
+      # https://github.com/docker-library/mariadb/issues/38#issuecomment-385845282
+      - ./db/innodb-fix.cnf:/etc/mysql/conf.d/innodb-fix.cnf
+    #networks:
+    #  wp-dev:
+
+#networks:
+#  wp-dev:
